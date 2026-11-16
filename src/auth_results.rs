@@ -103,6 +103,21 @@ impl<'x> AuthenticationResults<'x> {
         }
     }
 
+    /// Rebuilds a header from an existing `Authentication-Results` value
+    /// (without the field name), e.g. to reuse verdicts when ARC-sealing.
+    pub fn from_header_value(value: &'x str) -> Self {
+        match value.split_once(';') {
+            Some((hostname, results)) => AuthenticationResults {
+                hostname: hostname.trim(),
+                auth_results: format!(";{results}"),
+            },
+            None => AuthenticationResults {
+                hostname: value.trim(),
+                auth_results: String::new(),
+            },
+        }
+    }
+
     /// Adds one `dkim` entry per DKIM output. See
     /// [`set_dkim_result`](Self::set_dkim_result).
     pub fn with_dkim_results(mut self, dkim: &[DkimOutput], header_from: &str) -> Self {

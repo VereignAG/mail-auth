@@ -18,6 +18,20 @@ use crate::{
 use std::sync::Arc;
 
 #[test]
+fn from_header_value_round_trips() {
+    for value in [
+        "mx.example.org",
+        "mx.example.org;\r\n\tspf=pass smtp.mailfrom=alice@example.org",
+        "mx.example.org;\r\n\tspf=fail smtp.mailfrom=a@b.com;\r\n\tdkim=pass header.d=b.com;\r\n\tarc=none",
+    ] {
+        assert_eq!(
+            AuthenticationResults::from_header_value(value).to_string(),
+            value
+        );
+    }
+}
+
+#[test]
 fn authentication_results() {
     let mut auth_results = AuthenticationResults::new("mydomain.org");
 
